@@ -1,0 +1,5 @@
+# never commit signing material or built policies
+*.pfx
+*.p7
+*.p7b
+*.cip

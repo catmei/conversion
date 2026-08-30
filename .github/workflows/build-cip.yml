@@ -1,0 +1,37 @@
+name: Build CIP
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify ConfigCI is available on this runner
+        shell: powershell
+        run: |
+          $c = Get-Command ConvertFrom-CIPolicy -ErrorAction SilentlyContinue
+          if (-not $c) {
+            Write-Host "::error::ConvertFrom-CIPolicy is NOT available on this runner."
+            Get-Module -ListAvailable ConfigCI | Format-List
+            exit 1
+          }
+          Write-Host "ConfigCI OK -> $($c.Source)"
+
+      - name: Convert policy XML to binary CIP
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ConvertFrom-CIPolicy -XmlFilePath 'Test-Block-Unblock.xml' -BinaryFilePath 'Test-Block-Unblock.cip'
+          Get-Item 'Test-Block-Unblock.cip' | Select-Object Name,Length | Format-List
+
+      - name: Upload the CIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-cip
+          path: Test-Block-Unblock.cip
+          if-no-files-found: error
