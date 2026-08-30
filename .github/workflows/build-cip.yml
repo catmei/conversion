@@ -17,21 +17,25 @@ jobs:
           $c = Get-Command ConvertFrom-CIPolicy -ErrorAction SilentlyContinue
           if (-not $c) {
             Write-Host "::error::ConvertFrom-CIPolicy is NOT available on this runner."
-            Get-Module -ListAvailable ConfigCI | Format-List
             exit 1
           }
           Write-Host "ConfigCI OK -> $($c.Source)"
 
-      - name: Convert policy XML to binary CIP
+      - name: Convert every policy XML to binary CIP
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          ConvertFrom-CIPolicy -XmlFilePath 'Test-Block-Unblock.xml' -BinaryFilePath 'Test-Block-Unblock.cip'
-          Get-Item 'Test-Block-Unblock.cip' | Select-Object Name,Length | Format-List
+          $xmls = @(Get-ChildItem -Filter *.xml)
+          if ($xmls.Count -eq 0) { throw "No policy XML found in repo root." }
+          foreach ($x in $xmls) {
+            $out = [IO.Path]::ChangeExtension($x.Name, '.cip')
+            ConvertFrom-CIPolicy -XmlFilePath $x.FullName -BinaryFilePath $out
+            Write-Host "$($x.Name) -> $out  ($((Get-Item $out).Length) bytes)"
+          }
 
-      - name: Upload the CIP
+      - name: Upload the CIPs
         uses: actions/upload-artifact@v4
         with:
           name: unsigned-cip
-          path: Test-Block-Unblock.cip
+          path: '*.cip'
           if-no-files-found: error
