@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <SiPolicy PolicyType="Base Policy" xmlns="urn:schemas-microsoft-com:sipolicy">
-  <VersionEx>1.0.0.1</VersionEx>
+  <VersionEx>1.0.0.2</VersionEx>
   <PolicyID>{7B3E9A21-4C8D-4F6B-9E2A-1D5C8F3B7A44}</PolicyID>
   <BasePolicyID>{7B3E9A21-4C8D-4F6B-9E2A-1D5C8F3B7A44}</BasePolicyID>
   <PlatformID>{2E07F7E4-194C-4D20-B7C9-6F44A6C5A234}</PlatformID>
@@ -26,15 +26,25 @@
     <Rule>
       <Option>Enabled:Allow Supplemental Policies</Option>
     </Rule>
-    <Rule>
-      <Option>Enabled:Unsigned System Integrity Policy</Option>
-    </Rule>
   </Rules>
   <FileRules>
     <Allow ID="ID_ALLOW_A_ALL_UMCI" FileName="*" />
     <Allow ID="ID_ALLOW_A_ALL_KMCI" FileName="*" />
+    <Allow ID="ID_ALLOW_ACM_PFN" FriendlyName="AppControl Manager" PackageFamilyName="VioletHansen.AppControlManager_ea7andspwdn10" MinimumFileVersion="0.0.0.0" />
+    <FileAttrib ID="ID_FILEATTRIB_HOTS_1" FriendlyName="File Publisher Rule Type" InternalName="Heroes of the Storm" MinimumFileVersion="1.18.5.3107" />
+    <FileAttrib ID="ID_FILEATTRIB_HOTS_2" FriendlyName="File Publisher Rule Type" FileName="Heroes of the Storm.exe" MinimumFileVersion="2.55.17.32235" />
   </FileRules>
   <Signers>
+    <Signer ID="ID_SIGNER_HOTS_1" Name="DigiCert SHA2 Assured ID Code Signing CA">
+      <CertRoot Type="TBS" Value="E767799478F64A34B3F53FF3BB9057FE1768F4AB178041B0DCC0FF1E210CBA65" />
+      <CertPublisher Value="Blizzard Entertainment, Inc." />
+      <FileAttribRef RuleID="ID_FILEATTRIB_HOTS_1" />
+    </Signer>
+    <Signer ID="ID_SIGNER_HOTS_2" Name="DigiCert Trusted G4 Code Signing RSA4096 SHA384 2021 CA1">
+      <CertRoot Type="TBS" Value="65B1D4076A89AE273F57E6EEEDECB3EAE129B4168F76FA7671914CDF461D542255C59D9B85B916AE0CA6FC0FCF7A8E64" />
+      <CertPublisher Value="Blizzard Entertainment, Inc." />
+      <FileAttribRef RuleID="ID_FILEATTRIB_HOTS_2" />
+    </Signer>
     <Signer ID="ID_SIGNER_UPDATE" Name="HotS-Block-Signer">
       <CertRoot Type="TBS" Value="73954BB4814656F020737AFB0B49DCD83089F83C1C624242354809A6F2E3A10B97E7582F25309CF151B49579CE805DD18E1FAD56466431C7BC16144CDF623832" />
     </Signer>
@@ -45,8 +55,13 @@
   <SigningScenarios>
     <SigningScenario Value="12" ID="ID_SIGNINGSCENARIO_WINDOWS" FriendlyName="User Mode Code Integrity">
       <ProductSigners>
+        <DeniedSigners>
+          <DeniedSigner SignerId="ID_SIGNER_HOTS_1" />
+          <DeniedSigner SignerId="ID_SIGNER_HOTS_2" />
+        </DeniedSigners>
         <FileRulesRef>
           <FileRuleRef RuleID="ID_ALLOW_A_ALL_UMCI" />
+          <FileRuleRef RuleID="ID_ALLOW_ACM_PFN" />
         </FileRulesRef>
       </ProductSigners>
     </SigningScenario>
@@ -61,7 +76,10 @@
   <UpdatePolicySigners>
     <UpdatePolicySigner SignerId="ID_SIGNER_UPDATE" />
   </UpdatePolicySigners>
-  <CiSigners />
+  <CiSigners>
+    <CiSigner SignerId="ID_SIGNER_HOTS_1" />
+    <CiSigner SignerId="ID_SIGNER_HOTS_2" />
+  </CiSigners>
   <HvciOptions>2</HvciOptions>
   <Settings>
     <Setting Provider="PolicyInfo" Key="Information" ValueName="Name">
